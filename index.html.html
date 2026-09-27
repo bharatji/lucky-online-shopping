@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Hardware | Modern Digital Storefront</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 Pro CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            900: '#7c2d12',
+                        },
+                        darknavy: '#0b0f19',
+                        slatecard: '#131b2e'
+                    },
+                    boxShadow: {
+                        'glow': '0 0 25px -5px rgba(249, 115, 22, 0.4)',
+                        'glow-emerald': '0 0 25px -5px rgba(16, 185, 129, 0.4)',
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-panel {
+            background: rgba(19, 27, 46, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-light {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.05); }
+        }
+        .animate-pulse-glow { animation: pulseGlow 4s infinite ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-950 font-sans text-slate-100 antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+    <!-- TOP NAVBAR -->
+    <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Branding -->
+                <div class="flex items-center space-x-3.5 cursor-pointer group" onclick="switchTab('store')">
+                    <div class="relative flex items-center justify-center">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-brand-500 to-amber-400 rounded-2xl blur opacity-70 group-hover:opacity-100 transition duration-300"></div>
+                        <div class="relative w-11 h-11 rounded-2xl bg-slate-900 border border-slate-700/60 flex items-center justify-center text-white font-heading font-black text-xl shadow-2xl">
+                            <i class="fa-solid fa-screwdriver-wrench text-brand-500 text-lg group-hover:rotate-12 transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-heading font-black text-xl sm:text-2xl tracking-tight text-white">LUCKY<span class="text-brand-500">HARDWARE</span></h1>
+                            <span class="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live Store
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium hidden sm:block">Hardware, Tools & Electricals Catalog</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex items-center space-x-3">
+                    <!-- Owner Panel Toggle Button -->
+                    <button id="adminBtn" onclick="toggleAdminView()" class="relative group px-4 py-2.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-brand-500/50 text-slate-300 hover:text-white font-semibold text-xs sm:text-sm transition-all duration-300 flex items-center gap-2">
+                        <i id="adminBtnIcon" class="fa-solid fa-user-lock text-brand-500"></i>
+                        <span id="adminBtnText" class="hidden sm:inline">Owner Access</span>
+                    </button>
+
+                    <!-- Cart Trigger Button -->
+                    <button onclick="openCart()" class="relative group px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-600 to-amber-500 text-white font-heading font-bold text-xs sm:text-sm shadow-glow hover:shadow-brand-500/50 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2.5">
+                        <i class="fa-solid fa-bag-shopping text-base"></i>
+                        <span class="hidden sm:inline">Cart</span>
+                        <span id="cartBadge" class="bg-slate-950 text-amber-400 text-xs font-black px-2 py-0.5 rounded-full border border-amber-400/30">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- ================= STORE VIEW ================= -->
+        <div id="storeView" class="space-y-8">
+            <!-- HERO BANNER -->
+            <div class="relative rounded-3xl overflow-hidden border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 sm:p-10 shadow-2xl">
+                <div class="absolute -top-24 -right-24 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+                <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 text-xs font-extrabold uppercase tracking-wider">
+                        <i class="fa-solid fa-bolt"></i> Instant WhatsApp Ordering
+                    </div>
+                    <h2 class="font-heading font-black text-3xl sm:text-5xl text-white tracking-tight leading-tight">
+                        Quality Hardware & Tools <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-amber-400">Delivered Fast</span>
+                    </h2>
+                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                        Browse our comprehensive inventory of hand tools, power equipment, electrical fittings, and plumbing supplies. Direct orders sent straight to our store WhatsApp!
+                    </p>
+                    <div class="pt-2 flex flex-wrap items-center gap-4 text-xs text-slate-300 font-semibold">
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> Verified Quality</span>
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-amber-400"></i> Quick Store Pickup</span>
+                        <span class="flex items-center gap-1.5"><i class="fa-brands fa-whatsapp text-emerald-400"></i> Direct Support</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEARCH BAR & CATEGORY PILLS -->
+            <div class="space-y-4">
+                <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                    <!-- Search Input -->
+                    <div class="relative w-full sm:max-w-md">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                        <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Search tools, hardware, pipes, paint..." class="w-full pl-11 pr-4 py-3 bg-slate-900/90 border border-slate-800 rounded-2xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 shadow-inner transition">
+                    </div>
+
+                    <!-- Direct WhatsApp Contact Pill -->
+                    <a href="https://wa.me/919552768031" target="_blank" class="w-full sm:w-auto px-4 py-3 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 text-xs font-bold text-slate-300 hover:text-emerald-400 transition flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-emerald-400 text-base"></i>
+                        <span>Order Helpline: <strong class="text-white">+91 9552768031</strong></span>
+                    </a>
+                </div>
+
+                <!-- Category Chips -->
+                <div class="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-2" id="categoryChips">
+                    <button onclick="filterCategory('All')" class="cat-btn active px-5 py-2.5 rounded-2xl text-xs font-extrabold whitespace-nowrap transition-all duration-300 bg-gradient-to-r from-brand-600 to-amber-500 text-white shadow-glow">
+                        <i class="fa-solid fa-layer-group mr-1.5"></i> All Categories
+                    </button>
+                    <button onclick="filterCategory('Hand Tools')" class="cat-btn px-5 py-2.5 rounded-2xl text-xs font-semibold whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition">
+                        <i class="fa-solid fa-hammer mr-1.5"></i> Hand Tools
+                    </button>
+                    <button onclick="filterCategory('Power Tools')" class="cat-btn px-5 py-2.5 rounded-2xl text-xs font-semibold whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition">
+                        <i class="fa-solid fa-plug text-amber-400 mr-1.5"></i> Power Tools
+                    </button>
+                    <button onclick="filterCategory('Plumbing')" class="cat-btn px-5 py-2.5 rounded-2xl text-xs font-semibold whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition">
+                        <i class="fa-solid fa-faucet-drip text-blue-400 mr-1.5"></i> Plumbing
+                    </button>
+                    <button onclick="filterCategory('Electrical')" class="cat-btn px-5 py-2.5 rounded-2xl text-xs font-semibold whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition">
+                        <i class="fa-solid fa-bolt text-yellow-400 mr-1.5"></i> Electrical
+                    </button>
+                    <button onclick="filterCategory('Paints & Chemicals')" class="cat-btn px-5 py-2.5 rounded-2xl text-xs font-semibold whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition">
+                        <i class="fa-solid fa-paint-roller text-purple-400 mr-1.5"></i> Paints & Chemicals
+                    </button>
+                    <button onclick="filterCategory('Fasteners')" class="cat-btn px-5 py-2.5 rounded-2xl text-xs font-semibold whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition">
+                        <i class="fa-solid fa-screwdriver mr-1.5"></i> Fasteners
+                    </button>
+                </div>
+            </div>
+
+            <!-- PRODUCTS GRID -->
+            <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                <!-- Dynamically Populated -->
+            </div>
+
+            <!-- EMPTY CATALOG STATE -->
+            <div id="emptyStoreState" class="hidden flex-col items-center justify-center py-20 px-6 bg-slate-900/50 rounded-3xl border border-slate-800 border-dashed text-center">
+                <div class="w-20 h-20 rounded-3xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-500 text-3xl mb-4">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <h3 class="font-heading font-bold text-xl text-white">No Products In Store</h3>
+                <p class="text-slate-400 text-sm max-w-md mt-1 mb-6">The owner has not added any hardware products yet or no items match your search filter.</p>
+                <button onclick="toggleAdminView()" class="px-5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold transition border border-slate-700">
+                    <i class="fa-solid fa-lock mr-2"></i> Owner Panel to Add Items
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= OWNER MANAGEMENT VIEW ================= -->
+        <div id="adminView" class="hidden space-y-6">
+            <!-- Header bar for Admin -->
+            <div class="glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-center space-x-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl">
+                        <i class="fa-solid fa-user-gear"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-heading font-black text-xl text-white">Owner Control Center</h2>
+                        <p class="text-xs text-slate-400">Manage catalog, inventory stock, shop phone number and generate counter QR code</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <button onclick="seedSampleData()" class="px-4 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition border border-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Load Demo Sample Items
+                    </button>
+                    <button onclick="logoutAdmin()" class="px-4 py-2.5 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold transition border border-red-500/30">
+                        <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Exit Panel
+                    </button>
+                </div>
+            </div>
+
+            <!-- ADMIN TABS -->
+            <div class="flex border-b border-slate-800 space-x-6">
+                <button onclick="switchAdminTab('inventory')" id="tabBtnInventory" class="py-3 text-sm font-heading font-bold text-brand-500 border-b-2 border-brand-500 flex items-center gap-2">
+                    <i class="fa-solid fa-boxes-stacked"></i> Inventory Management
+                </button>
+                <button onclick="switchAdminTab('settings')" id="tabBtnSettings" class="py-3 text-sm font-heading font-bold text-slate-400 hover:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode"></i> Store QR Code & Settings
+                </button>
+            </div>
+
+            <!-- ADMIN TAB 1: INVENTORY MANAGEMENT -->
+            <div id="adminTabInventory" class="grid lg:grid-cols-3 gap-6">
+                <!-- Product Form Card -->
+                <div class="lg:col-span-1 glass-panel p-6 rounded-3xl border border-slate-800 h-fit space-y-4">
+                    <h3 id="formTitle" class="font-heading font-bold text-base text-white flex items-center gap-2">
+                        <i class="fa-solid fa-circle-plus text-brand-500"></i> Add New Product
+                    </h3>
+                    <form id="productForm" onsubmit="handleProductSubmit(event)" class="space-y-3.5">
+                        <input type="hidden" id="prodId">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">Product Title *</label>
+                            <input type="text" id="prodName" required placeholder="e.g. Heavy Duty Steel Hammer" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Price (₹) *</label>
+                                <input type="number" id="prodPrice" step="0.01" required placeholder="350" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Unit</label>
+                                <select id="prodUnit" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-brand-500">
+                                    <option value="pc">Piece (pc)</option>
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="m">Meter (m)</option>
+                                    <option value="box">Box</option>
+                                    <option value="set">Set</option>
+                                    <option value="pkt">Packet</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">Category</label>
+                            <select id="prodCategory" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-brand-500">
+                                <option value="Hand Tools">Hand Tools</option>
+                                <option value="Power Tools">Power Tools</option>
+                                <option value="Plumbing">Plumbing</option>
+                                <option value="Electrical">Electrical</option>
+                                <option value="Paints & Chemicals">Paints & Chemicals</option>
+                                <option value="Fasteners">Fasteners</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">Image URL (Optional)</label>
+                            <input type="url" id="prodImage" placeholder="https://images.unsplash.com/..." class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">Stock Count</label>
+                            <input type="number" id="prodStock" value="25" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                        </div>
+
+                        <div class="pt-2 flex gap-2">
+                            <button type="submit" class="flex-1 bg-gradient-to-r from-brand-600 to-amber-500 hover:from-brand-500 hover:to-amber-400 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-glow transition">Save Product</button>
+                            <button type="button" onclick="resetForm()" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-xl text-xs font-bold">Clear</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Products Table -->
+                <div class="lg:col-span-2 glass-panel p-6 rounded-3xl border border-slate-800 overflow-hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-heading font-bold text-base text-white">Catalog Inventory Table</h3>
+                        <span id="inventoryCount" class="text-xs bg-slate-800 text-amber-400 px-3 py-1 rounded-full font-bold border border-slate-700">0 Products</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 uppercase font-extrabold border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Product</th>
+                                    <th class="p-3">Category</th>
+                                    <th class="p-3">Price</th>
+                                    <th class="p-3 text-center">Stock</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminInventoryTable" class="divide-y divide-slate-800/60">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN TAB 2: COUNTER QR STAND & STORE SETTINGS -->
+            <div id="adminTabSettings" class="hidden space-y-6">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Shop Settings Form -->
+                    <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-5">
+                        <h3 class="font-heading font-bold text-base text-white flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-lg"></i> Store Contact & Online URL
+                        </h3>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">Shop WhatsApp Number (With Country Code)</label>
+                            <input type="text" id="shopPhoneInput" value="919552768031" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-brand-500">
+                            <p class="text-[11px] text-slate-500 mt-1">Orders generated by customers will open WhatsApp directed to this number.</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">Store Website URL (For QR Code)</label>
+                            <input type="url" id="shopUrlInput" placeholder="https://luckyhardware.netlify.app" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-brand-500">
+                            <p class="text-[11px] text-slate-500 mt-1">After publishing online on Netlify, paste your link here so the QR poster links directly to your catalog.</p>
+                        </div>
+                        <button onclick="saveStoreSettings()" class="bg-gradient-to-r from-brand-600 to-amber-500 text-white font-bold px-5 py-2.5 rounded-2xl text-xs shadow-glow transition">
+                            Save Settings & Rebuild QR Code
+                        </button>
+                    </div>
+
+                    <!-- Counter Poster Preview -->
+                    <div class="glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col items-center text-center space-y-4">
+                        <div>
+                            <h3 class="font-heading font-bold text-base text-white">Printable Counter Display Card</h3>
+                            <p class="text-xs text-slate-400">Place this poster on your shop counter for instant phone scans</p>
+                        </div>
+
+                        <!-- 3D Stand Poster Card -->
+                        <div id="printableQrStand" class="w-72 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-brand-500/50 p-6 rounded-3xl shadow-2xl relative flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-2xl bg-brand-500 text-white flex items-center justify-center font-black text-xl mb-2 shadow-glow">
+                                LH
+                            </div>
+                            <h4 class="font-heading font-black text-xl text-white tracking-wider">LUCKY HARDWARE</h4>
+                            <p class="text-[10px] text-amber-400 font-bold uppercase tracking-widest mb-4">Digital Shop Catalog</p>
+
+                            <!-- QR Code Box -->
+                            <div id="qrCodeContainer" class="bg-white p-3 rounded-2xl shadow-xl border border-slate-200 min-w-[160px] min-h-[160px] flex items-center justify-center">
+                                <!-- Rendered QRCode -->
+                            </div>
+
+                            <p class="text-[11px] text-slate-300 font-medium mt-4">Point Phone Camera to Order</p>
+                            <div class="mt-2 text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> +91 9552768031
+                            </div>
+                        </div>
+
+                        <button onclick="printQrStand()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl text-xs transition border border-slate-700 flex items-center gap-2">
+                            <i class="fa-solid fa-print"></i> Print Poster Card
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SECRET ADMIN LOGIN MODAL -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-sm rounded-3xl border border-slate-800 overflow-hidden shadow-2xl">
+            <div class="p-6 text-center space-y-2 border-b border-slate-800/80">
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl mx-auto">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="font-heading font-bold text-lg text-white">Owner Access Authorization</h3>
+                <p class="text-xs text-slate-400">Enter secret password to modify store inventory</p>
+            </div>
+            <form onsubmit="verifyAdminPassword(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1.5">Secret Key</label>
+                    <input type="password" id="adminPasswordInput" required placeholder="••••••••••••" class="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-2xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                    <p id="loginError" class="text-xs text-red-400 mt-2 font-semibold hidden"></p>
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-brand-600 to-amber-500 hover:from-brand-500 hover:to-amber-400 text-white font-bold py-3 rounded-2xl text-xs shadow-glow transition">
+                        Unlock Dashboard
+                    </button>
+                    <button type="button" onclick="closeAdminModal()" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-400 font-bold rounded-2xl text-xs">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SLIDE-OVER CART DRAWER -->
+    <div id="cartModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onclick="closeCart()"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col z-10">
+            <!-- Header -->
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                    <i class="fa-solid fa-bag-shopping text-brand-500 text-lg"></i>
+                    <h3 class="font-heading font-bold text-base text-white">Your Shopping Cart</h3>
+                </div>
+                <button onclick="closeCart()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Item List -->
+            <div id="cartItemsList" class="flex-grow p-5 overflow-y-auto space-y-3.5 divide-y divide-slate-800/60">
+                <!-- Dynamic Items -->
+            </div>
+
+            <!-- Footer & Checkout -->
+            <div class="p-5 border-t border-slate-800 bg-slate-950/60 space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Subtotal:</span>
+                    <span id="cartTotal" class="font-heading font-black text-xl text-amber-400">₹0.00</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Your Full Name / Business Name *</label>
+                    <input type="text" id="custName" placeholder="e.g. Ramesh Patel" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                </div>
+
+                <button onclick="submitOrderToWhatsApp()" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-heading font-bold text-sm shadow-glow-emerald hover:scale-[1.02] active:scale-[0.98] transition flex items-center justify-center gap-2.5">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> Send Order via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        // CORE STATE
+        const SECRET_PASS = "takiya=pillow";
+        let storePhone = localStorage.getItem('lh_phone') || "919552768031";
+        let storeUrl = localStorage.getItem('lh_url') || window.location.href;
+        
+        let products = JSON.parse(localStorage.getItem('lh_products')) || [];
+        let cart = [];
+        let isAdminLoggedIn = false;
+        let activeCategory = 'All';
+
+        // SAMPLE DEMO DATA SEEDER
+        const SAMPLE_PRODUCTS = [
+            { id: 'p1', name: 'Claw Hammer Carbon Steel (500g)', price: 380, unit: 'pc', category: 'Hand Tools', image: 'https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?auto=format&fit=crop&w=500&q=80', stock: 15 },
+            { id: 'p2', name: 'Bosch Cordless Drill Machine 12V', price: 3450, unit: 'set', category: 'Power Tools', image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=500&q=80', stock: 8 },
+            { id: 'p3', name: 'Brass Heavy Duty Gate Valve 1 Inch', price: 420, unit: 'pc', category: 'Plumbing', image: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=500&q=80', stock: 30 },
+            { id: 'p4', name: 'Modular Electrical Switch Socket Set', price: 180, unit: 'pkt', category: 'Electrical', image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=500&q=80', stock: 50 },
+            { id: 'p5', name: 'Asian Paints Apex Exterior White 10L', price: 2150, unit: 'box', category: 'Paints & Chemicals', image: 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=500&q=80', stock: 12 },
+            { id: 'p6', name: 'Stainless Steel Wood Screws Kit 200pcs', price: 290, unit: 'box', category: 'Fasteners', image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=500&q=80', stock: 40 }
+        ];
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            renderStoreProducts();
+            updateCartUI();
+            initQrCode();
+        });
+
+        // TOAST NOTIFICATIONS
+        function showToast(msg, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto px-4 py-3 rounded-2xl text-xs font-bold text-white shadow-2xl backdrop-blur-xl border flex items-center gap-2.5 transition-all duration-300 transform translate-y-2 opacity-0 ${
+                type === 'success' 
+                    ? 'bg-slate-900/90 border-emerald-500/40 text-emerald-400' 
+                    : 'bg-slate-900/90 border-red-500/40 text-red-400'
+            }`;
+            toast.innerHTML = `<i class="${type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation'} text-base"></i> ${msg}`;
+            
+            const container = document.getElementById('toastContainer');
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // VIEW SWITCHING
+        function switchTab(tab) {
+            if (tab === 'admin' && !isAdminLoggedIn) {
+                openAdminModal();
+                return;
+            }
+            if (tab === 'admin') {
+                document.getElementById('storeView').classList.add('hidden');
+                document.getElementById('adminView').classList.remove('hidden');
+                renderAdminTable();
+            } else {
+                document.getElementById('adminView').classList.add('hidden');
+                document.getElementById('storeView').classList.remove('hidden');
+            }
+        }
+
+        function toggleAdminView() {
+            if (isAdminLoggedIn) {
+                switchTab('admin');
+            } else {
+                openAdminModal();
+            }
+        }
+
+        // ADMIN AUTHENTICATION
+        function openAdminModal() {
+            document.getElementById('adminLoginModal').classList.remove('hidden');
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+        }
+
+        function verifyAdminPassword(e) {
+            e.preventDefault();
+            const input = document.getElementById('adminPasswordInput').value;
+            if (input === SECRET_PASS) {
+                isAdminLoggedIn = true;
+                closeAdminModal();
+                document.getElementById('adminBtnIcon').className = "fa-solid fa-user-check text-emerald-400";
+                document.getElementById('adminBtnText').innerText = "Dashboard";
+                showToast("Welcome back, Store Owner!");
+                switchTab('admin');
+            } else {
+                const err = document.getElementById('loginError');
+                err.innerText = "Invalid password. Authorization denied.";
+                err.classList.remove('hidden');
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            document.getElementById('adminBtnIcon').className = "fa-solid fa-user-lock text-brand-500";
+            document.getElementById('adminBtnText').innerText = "Owner Access";
+            showToast("Logged out of Admin Panel");
+            switchTab('store');
+        }
+
+        function seedSampleData() {
+            products = [...SAMPLE_PRODUCTS];
+            localStorage.setItem('lh_products', JSON.stringify(products));
+            renderAdminTable();
+            renderStoreProducts();
+            showToast("Loaded demo hardware products!");
+        }
+
+        // RENDER PRODUCTS IN STORE
+        function renderStoreProducts() {
+            const grid = document.getElementById('productsGrid');
+            const emptyState = document.getElementById('emptyStoreState');
+            grid.innerHTML = '';
+
+            const filtered = products.filter(p => {
+                const matchesCat = (activeCategory === 'All' || p.category === activeCategory);
+                const query = document.getElementById('searchInput').value.toLowerCase();
+                const matchesSearch = p.name.toLowerCase().includes(query);
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            filtered.forEach(p => {
+                const defaultImg = 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=500&q=80';
+                const card = document.createElement('div');
+                card.className = "group glass-panel rounded-3xl border border-slate-800/80 overflow-hidden flex flex-col justify-between hover:border-brand-500/50 hover:shadow-glow transition-all duration-300";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="h-40 bg-slate-900 relative overflow-hidden">
+                            <img src="${p.image || defaultImg}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <span class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md text-amber-400 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-amber-400/20">${p.category}</span>
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <h4 class="font-heading font-bold text-sm text-white line-clamp-2 leading-snug">${p.name}</h4>
+                            <div class="flex items-baseline gap-1">
+                                <span class="font-heading font-black text-lg text-amber-400">₹${p.price}</span>
+                                <span class="text-[11px] text-slate-500 font-medium">/ ${p.unit}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0">
+                        <button onclick="addToCart('${p.id}')" class="w-full py-2.5 rounded-2xl bg-slate-800 hover:bg-gradient-to-r hover:from-brand-600 hover:to-amber-500 text-white font-bold text-xs border border-slate-700/80 hover:border-transparent transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-plus text-brand-400 group-hover:text-white"></i> Add to Order
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // FILTERING LOGIC
+        function filterProducts() {
+            renderStoreProducts();
+        }
+
+        function filterCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.innerText.includes(cat) || (cat === 'All' && btn.innerText.includes('All'))) {
+                    btn.className = "cat-btn active px-5 py-2.5 rounded-2xl text-xs font-extrabold whitespace-nowrap transition-all duration-300 bg-gradient-to-r from-brand-600 to-amber-500 text-white shadow-glow";
+                } else {
+                    btn.className = "cat-btn px-5 py-2.5 rounded-2xl text-xs font-semibold whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition";
+                }
+            });
+            renderStoreProducts();
+        }
+
+        // CART SYSTEM
+        function addToCart(id) {
+            const prod = products.find(p => p.id === id);
+            if (!prod) return;
+
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ ...prod, qty: 1 });
+            }
+            updateCartUI();
+            showToast(`Added ${prod.name} to order!`);
+        }
+
+        function updateCartQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== id);
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cartBadge');
+            const totalQty = cart.reduce((acc, i) => acc + i.qty, 0);
+            badge.innerText = totalQty;
+
+            const list = document.getElementById('cartItemsList');
+            list.innerHTML = '';
+
+            if (cart.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-16 space-y-3">
+                        <i class="fa-solid fa-basket-shopping text-slate-700 text-4xl"></i>
+                        <p class="text-xs text-slate-500">Your cart is empty. Add hardware items to start.</p>
+                    </div>`;
+                document.getElementById('cartTotal').innerText = `₹0.00`;
+                return;
+            }
+
+            let total = 0;
+            cart.forEach(item => {
+                const subtotal = item.price * item.qty;
+                total += subtotal;
+
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between py-3";
+                row.innerHTML = `
+                    <div class="flex-grow pr-3">
+                        <h5 class="font-bold text-xs text-white line-clamp-1">${item.name}</h5>
+                        <p class="text-[11px] text-slate-400">₹${item.price} / ${item.unit}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl overflow-hidden">
+                            <button onclick="updateCartQty('${item.id}', -1)" class="px-2.5 py-1 text-slate-400 hover:bg-slate-800 hover:text-white font-bold">-</button>
+                            <span class="px-2 text-xs font-bold text-white">${item.qty}</span>
+                            <button onclick="updateCartQty('${item.id}', 1)" class="px-2.5 py-1 text-slate-400 hover:bg-slate-800 hover:text-white font-bold">+</button>
+                        </div>
+                        <span class="font-heading font-extrabold text-xs text-amber-400 w-16 text-right">₹${subtotal.toFixed(2)}</span>
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+
+            document.getElementById('cartTotal').innerText = `₹${total.toFixed(2)}`;
+        }
+
+        function openCart() {
+            document.getElementById('cartModal').classList.remove('hidden');
+        }
+
+        function closeCart() {
+            document.getElementById('cartModal').classList.add('hidden');
+        }
+
+        // WHATSAPP ORDER SUBMISSION
+        function submitOrderToWhatsApp() {
+            if (cart.length === 0) {
+                showToast("Your shopping cart is empty!", "error");
+                return;
+            }
+
+            const name = document.getElementById('custName').value.trim() || "Valued Customer";
+            let msg = `🛠️ *NEW ORDER - LUCKY HARDWARE*\n`;
+            msg += `---------------------------------\n`;
+            msg += `👤 *Customer Name:* ${name}\n`;
+            msg += `---------------------------------\n`;
+
+            let total = 0;
+            cart.forEach((item, idx) => {
+                const sub = item.price * item.qty;
+                total += sub;
+                msg += `${idx + 1}. *${item.name}*\n   Qty: ${item.qty} ${item.unit} x ₹${item.price} = ₹${sub.toFixed(2)}\n`;
+            });
+
+            msg += `---------------------------------\n`;
+            msg += `💰 *Total Order Value:* ₹${total.toFixed(2)}\n`;
+            msg += `---------------------------------\n`;
+            msg += `Please confirm order availability and pickup time!`;
+
+            const encodedMsg = encodeURIComponent(msg);
+            const cleanPhone = storePhone.replace(/[^0-9]/g, '');
+            const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMsg}`;
+
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // INVENTORY MANAGEMENT LOGIC
+        function switchAdminTab(tab) {
+            if (tab === 'inventory') {
+                document.getElementById('adminTabInventory').classList.remove('hidden');
+                document.getElementById('adminTabSettings').classList.add('hidden');
+                document.getElementById('tabBtnInventory').className = "py-3 text-sm font-heading font-bold text-brand-500 border-b-2 border-brand-500 flex items-center gap-2";
+                document.getElementById('tabBtnSettings').className = "py-3 text-sm font-heading font-bold text-slate-400 hover:text-white flex items-center gap-2";
+            } else {
+                document.getElementById('adminTabInventory').classList.add('hidden');
+                document.getElementById('adminTabSettings').classList.remove('hidden');
+                document.getElementById('tabBtnSettings').className = "py-3 text-sm font-heading font-bold text-brand-500 border-b-2 border-brand-500 flex items-center gap-2";
+                document.getElementById('tabBtnInventory').className = "py-3 text-sm font-heading font-bold text-slate-400 hover:text-white flex items-center gap-2";
+            }
+        }
+
+        function handleProductSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('prodId').value || 'prod_' + Date.now();
+            const name = document.getElementById('prodName').value.trim();
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            const unit = document.getElementById('prodUnit').value;
+            const category = document.getElementById('prodCategory').value;
+            const image = document.getElementById('prodImage').value.trim();
+            const stock = parseInt(document.getElementById('prodStock').value) || 0;
+
+            const existingIdx = products.findIndex(p => p.id === id);
+            const itemObj = { id, name, price, unit, category, image, stock };
+
+            if (existingIdx > -1) {
+                products[existingIdx] = itemObj;
+                showToast("Product updated successfully!");
+            } else {
+                products.unshift(itemObj);
+                showToast("New product added to inventory!");
+            }
+
+            localStorage.setItem('lh_products', JSON.stringify(products));
+            resetForm();
+            renderAdminTable();
+            renderStoreProducts();
+        }
+
+        function resetForm() {
+            document.getElementById('prodId').value = '';
+            document.getElementById('productForm').reset();
+            document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-circle-plus text-brand-500"></i> Add New Product`;
+        }
+
+        function editProduct(id) {
+            const p = products.find(i => i.id === id);
+            if (!p) return;
+            document.getElementById('prodId').value = p.id;
+            document.getElementById('prodName').value = p.name;
+            document.getElementById('prodPrice').value = p.price;
+            document.getElementById('prodUnit').value = p.unit;
+            document.getElementById('prodCategory').value = p.category;
+            document.getElementById('prodImage').value = p.image || '';
+            document.getElementById('prodStock').value = p.stock;
+
+            document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Product`;
+        }
+
+        function deleteProduct(id) {
+            if (confirm("Are you sure you want to remove this product?")) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('lh_products', JSON.stringify(products));
+                renderAdminTable();
+                renderStoreProducts();
+                showToast("Product deleted from catalog", "error");
+            }
+        }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('adminInventoryTable');
+            const count = document.getElementById('inventoryCount');
+            tbody.innerHTML = '';
+            count.innerText = `${products.length} Products`;
+
+            if (products.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-500">No products in catalog. Fill the form or load sample items.</td></tr>`;
+                return;
+            }
+
+            products.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/60";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-white">${p.name}</td>
+                    <td class="p-3 text-slate-400">${p.category}</td>
+                    <td class="p-3 font-bold text-amber-400">₹${p.price} / ${p.unit}</td>
+                    <td class="p-3 text-center"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${p.stock > 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">${p.stock}</span></td>
+                    <td class="p-3 text-right space-x-2">
+                        <button onclick="editProduct('${p.id}')" class="text-slate-400 hover:text-amber-400 font-bold"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteProduct('${p.id}')" class="text-slate-500 hover:text-red-400 font-bold"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // STORE SETTINGS & QR GENERATION
+        function saveStoreSettings() {
+            const phone = document.getElementById('shopPhoneInput').value.trim();
+            const url = document.getElementById('shopUrlInput').value.trim();
+
+            if (phone) {
+                storePhone = phone;
+                localStorage.setItem('lh_phone', phone);
+            }
+            if (url) {
+                storeUrl = url;
+                localStorage.setItem('lh_url', url);
+            }
+
+            initQrCode();
+            showToast("Store settings saved!");
+        }
+
+        function initQrCode() {
+            const container = document.getElementById('qrCodeContainer');
+            container.innerHTML = '';
+
+            const qrText = storeUrl || window.location.href;
+
+            if (typeof QRCode !== 'undefined') {
+                new QRCode(container, {
+                    text: qrText,
+                    width: 150,
+                    height: 150,
+                    colorDark: "#0b0f19",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } else {
+                const img = document.createElement('img');
+                img.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrText)}`;
+                img.className = "w-36 h-36 rounded-xl";
+                container.appendChild(img);
+            }
+        }
+
+        function printQrStand() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
